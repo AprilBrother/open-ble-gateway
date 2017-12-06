@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB Gateway</title>
+<link rel="icon" href="data:;base64,=">
+
+</head>
+
+<body>
+<div id="main">
+    <div class="header">
+        <h1>AB Gateway</h1>
+        <h2>Applications</h2>
+    </div>
+
+    <div class="content">
+        <div class="pure-menu pure-menu-horizontal">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="index.htm" class="pure-menu-link">Dashboard</a></li>
+                <li class="pure-menu-item"><a href="wifi.htm" class="pure-menu-link">Wi-Fi</a></li>
+                <li class="pure-menu-item pure-menu-selected"><a href="app.htm" class="pure-menu-link">Application</a></li>
+                <li class="pure-menu-item"><a href="advanced.htm" class="pure-menu-link">Advanced</a></li>
+            </ul>
+        </div>
+
+        <div>&nbsp;</div>
+        <form class="pure-form pure-form-aligned" action="/config" method="post" enctype="multipart/form-data">
+
+            <div class="pure-control-group">
+                <label for="conn-type">Connection Type</label>
+                <select name="conn-type" id="conn-type">
+                    <option value="0">WebSocket Server - Port: 8080</option>
+                    <option value="1">WebSocket Client</option>
+                    <option value="2">HTTP Client</option>
+                    <option value="3">MQTT Client</option>
+                </select>
+            </div>
+
+            <div id="cont-ws-client">
+                <div class="pure-control-group">
+                    <label for="ws-host">Host</label>
+                    <input id="ws-host" name="ws-host" placeholder="Domain name or IP for server">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="ws-port">Port</label>
+                    <input id="ws-port" name="ws-port" type="number" placeholder="Port number, e.g., 8080">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="ws-url">URL</label>
+                    <input id="ws-url" name="ws-url" placeholder="/">
+                </div>
+            </div>
+
+            <div id="cont-http-client">
+                <div class="pure-control-group">
+                    <label for="http-host">Host</label>
+                    <input id="http-host" name="http-host" placeholder="Domain name or IP for server">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="http-port">Port</label>
+                    <input id="http-port" name="http-port" type="number" placeholder="Port number, e.g., 8080">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="http-url">URI</label>
+                    <input id="http-url" name="http-url" placeholder="URI, e.g, app.php?data=">
+                </div>
+            </div>
+
+            <div id="cont-mqtt-client">
+                <div class="pure-control-group">
+                    <label for="mqtt-host">Host</label>
+                    <input id="mqtt-host" name="mqtt-host" placeholder="Domain name or IP for MQTt Broker">
+                </div>
+                <div class="pure-control-group">
+                    <label for="mqtt-port">Port</label>
+                    <input id="mqtt-port" name="mqtt-port" type="number" placeholder="Port number, e.g., 1883">
+                </div>
+                <div class="pure-control-group">
+                    <label for="mqtt-topic">Publish Topic</label>
+                    <input id="mqtt-topic" name="mqtt-topic" placeholder="beacons">
+                </div>
+                <div class="pure-control-group">
+                    <label for="mqtt-name">Username (optional)</label>
+                    <input id="mqtt-name" name="mqtt-name" type="text">
+                </div>
+                <div class="pure-control-group">
+                    <label for="mqtt-pas">Password (optional)</label>
+                    <input id="mqtt-pass" name="mqtt-pass" type="text">
+                </div>
+            </div>
+
+
+            <fieldset>
+            <legend>&nbsp;</legend>
+
+            <div class="pure-control-group">
+                <label for="req-int">Request Interval (In seconds)</label>
+                <input id="req-int" name="req-int" placeholder="1" value="1"> The upload interval is 1 ~ 10 seconds
+            </div>
+
+            <div class="pure-control-group">
+                <label for="min-rssi">RSSI Filter</label>
+				<select id="min-rssi" name="min-rssi">
+					<option value="-127">Default</option>
+					<option value="-60">1 Meter</option>
+					<option value="-66">3 Meters</option>
+					<option value="-70">5 Meters</option>
+					<option value="-80">10 Meters</option>
+					<option value="-90">15 Meters</option>
+				</select> This distance is a rough estimate
+            </div>
+
+            <div class="pure-control-group">
+                <label for="adv-filter">Advertising Filter</label>
+				<select id="adv-filter" name="adv-filter">
+					<option value="0">Allow All Advertising Data</option>
+					<option value="1">iBeacon Only</option>
+					<option value="2">Eddystone UID Only</option>
+					<option value="3">Eddystone URL Only</option>
+				</select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="data-format">Data Format</label>
+				<select id="data-format" name="data-format">
+					<option value="0">Default</option>
+					<option value="1">MessagePack</option>
+				</select>
+            </div>
+
+            </fieldset>
+
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">Save And Restart</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script src="asset/jquery.js"></script>
+<script>
+function hideAll() {
+    $("#cont-ws-client").hide();
+    $("#cont-http-client").hide();
+    $("#cont-mqtt-client").hide();
+}
+
+function loadCss() {
+    $('<link>')
+      .appendTo('head')
+      .attr({
+          type: 'text/css', 
+          rel: 'stylesheet',
+          href: 'asset/style.css'
+      });
+}
+
+function doneCallback() {
+    $("#conn-type").change(function() {
+        switch(parseInt(this.value)) {
+            case 0:
+                hideAll();
+                break;
+
+            case 1:
+                hideAll();
+                $("#cont-ws-client").show();
+                break;
+
+            case 2:
+                hideAll();
+                $("#cont-http-client").show();
+                break;
+
+            case 3:
+                hideAll();
+                $("#cont-mqtt-client").show();
+                break;
+        }
+    });
+
+    hideAll();
+
+    $.getJSON("/config.json", {s:new Date().getTime()}, function(data) {
+        var k, configKeys = new Array(
+            'req-int', 
+            'http-url', 
+            'mqtt-name', 
+            'mqtt-pass', 
+            'mqtt-topic',
+            'min-rssi', 
+            'data-format', 
+            'conn-type', 
+            'adv-filter' 
+        );
+
+        for (var i = 0; i < configKeys.length; i++) {
+            k = configKeys[i];
+            $('#' + k).val(data[k]);
+        }
+        $('#ws-host').val(data['host']);
+        $('#http-host').val(data['host']);
+        $('#mqtt-host').val(data['host']);
+        $('#ws-port').val(data['port']);
+        $('#http-port').val(data['port']);
+        $('#mqtt-port').val(data['port']);
+        $('#ws-url').val(data['http-url']);
+
+        $('#conn-type').change();
+    }).done(function() {
+        loadCss();
+    }).fail(function() {
+        loadCss();
+    });
+
+}
+
+if (window.jQuery) {
+    doneCallback();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB Gateway</title>
+<link rel="icon" href="data:;base64,=">
+</head>
+
+<body>
+<div id="main">
+    <div class="header">
+        <h1>AB Gateway</h1>
+        <h2>Wi-Fi</h2>
+    </div>
+
+    <div class="content">
+        <div class="pure-menu pure-menu-horizontal">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="index.htm" class="pure-menu-link">Dashboard</a></li>
+                <li class="pure-menu-item pure-menu-selected"><a href="wifi.htm" class="pure-menu-link">Wi-Fi</a></li>
+                <li class="pure-menu-item"><a href="app.htm" class="pure-menu-link">Application</a></li>
+                <li class="pure-menu-item"><a href="advanced.htm" class="pure-menu-link">Advanced</a></li>
+            </ul>
+        </div>
+
+        <div>&nbsp;</div>
+        <form class="pure-form pure-form-aligned" id="f-ap" action="/ap" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend>WiFi AP Setting</legend>
+                <div class="pure-control-group">
+                    <label>Wi-Fi SSID</label> 
+                    <input value="ap.gateway" readonly>
+                </div>
+                <div class="pure-control-group">
+                    <label for="ap-passcode">Security Key</label>
+                    <input id="ap-passcode" name="ap-passcode">
+                </div>
+                <div class="pure-controls">
+                    <button type="submit" class="pure-button pure-button-primary">Save</button>
+                    <button type="button" class="pure-button" id="btn-disable-ap">Disable AP</button>
+                    <button type="button" class="pure-button" id="btn-enable-ap">Enable AP</button>
+                </div>
+            </fieldset>
+        </form>
+
+        <form class="pure-form pure-form-aligned" action="/wifi" id="f-wifi" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend>WiFi Station Setting</legend>
+
+                <div class="pure-control-group">
+                    <label for="ssid">Wi-Fi SSID 1</label>
+                    <input id="ssid" placeholder="Wi-Fi SSID" name="ssid"> <button id="btn-scan" type="button" class="pure-button">Scan Wi-Fi</button> 
+                </div>
+
+                <div class="pure-control-group pure-button-hidden" id="cont-ssids">
+                    <label for="ssids">Available SSID</label>
+                    <select id="ssids" multiple="multiple"></select>
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="passcode">Security Key 1</label>
+                    <input id="passcode" placeholder="Security Key" name="passcode"> (optional for open WiFi network)
+                </div>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>More Profiles</legend>
+
+                <div class="pure-control-group">
+                    <label for="ssid2">Wi-Fi SSID 2</label>
+                    <input id="ssid2" placeholder="Wi-Fi SSID" name="ssid2">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="passcode2">Security Key 2</label>
+                    <input id="passcode2" placeholder="Security Key" name="passcode2"> (optional for open WiFi network)
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="ssid3">Wi-Fi SSID 3</label>
+                    <input id="ssid3" placeholder="Wi-Fi SSID" name="ssid3">
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="passcode3">Security Key 3</label>
+                    <input id="passcode3" placeholder="Security Key" name="passcode3"> (optional for open WiFi network)
+                </div>
+
+                <div class="pure-controls">
+                    <button id="btn-wifi" type="submit" class="pure-button pure-button-primary">Save</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+</div>
+
+<script src="asset/jquery.js"></script>
+<script>
+function doneCallback() {
+    $("#f-wifi").submit(function() {
+        var len = $("#passcode").val().length;
+        if((len > 0) && (len  < 8)) {
+            alert("The passcode length for WiFi must greater than 7");
+            return false;
+        }
+        return true;
+    });
+
+    $("#f-ap").submit(function() {
+        if($("#ap-passcode").val().length < 8) {
+            alert("The passcode length for AP must greater than 7");
+            return false;
+        }
+        return true;
+    });
+
+    $("#btn-disable-ap").click(function() {
+        $.post("/set_ap", {"on" : 0})
+            .done(function(data) {
+                $("#btn-disable-ap").hide();
+                $("#btn-enable-ap").show();
+            });
+    });
+
+    $("#btn-enable-ap").click(function() {
+        $.post("/set_ap", {"on" : 1})
+            .done(function(data) {
+                $("#btn-enable-ap").hide();
+                $("#btn-disable-ap").show();
+            });
+    });
+
+    $("#btn-scan").click(function() {
+        $("#btn-scan").text("Scanning...").attr("disabled", true);
+        $("#cont-ssids").hide();
+        $.getJSON("/scan", function(data) {
+            $("#btn-scan").text("Scan Wi-Fi").attr("disabled", false);
+            if (!data.length) {
+                return;
+            }
+
+            var ssid, rssi;
+            $("#ssids").html("");
+            for(var i = 0; i < data.length; i += 2) {
+                ssid = data[i];
+                rssi = data[i + 1];
+                var opt = $("<option>").attr("value", ssid).text(ssid + " (" + rssi + "dBm)");
+                $("#ssids").append(opt);
+            }
+            $("#cont-ssids").show("fast");
+        });
+    });
+
+    $("#ssids").change(function() {
+        $("#ssid").val(this.value);
+    });
+
+    $.getJSON("/wifi.json", {s:new Date().getTime()}, function(data) {
+        var apEnabled = 3;
+        var idx;
+        if (data[0]) {
+            $("#ssid").val(data[0].ssid);
+            $("#passcode").val(data[0].pass);
+        }
+        for (var i = 1; i < data.length; i++) {
+            idx = i + 1; 
+            $("#ssid" + idx).val(data[i].ssid);
+            $("#passcode" + idx).val(data[i].pass);
+        }
+
+        if (data.mode == apEnabled) {
+            $("#btn-disable-ap").show();
+            $("#btn-enable-ap").hide();
+        } else {
+            $("#btn-disable-ap").hide();
+            $("#btn-enable-ap").show();
+        }
+    });
+
+    $('<link>').appendTo('head').attr({
+        type: 'text/css', 
+        rel: 'stylesheet',
+        href: 'asset/style.css'
+    });
+}
+
+if (window.jQuery) {
+    doneCallback();
+}
+</script>
+
+</body>
+</html>

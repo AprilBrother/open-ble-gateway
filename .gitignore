@@ -1,0 +1,8 @@
+*.swp
+.DS_Store
+build
+data
+*.bin
+.pioenvs
+.piolibdeps
+src.ino.cpp

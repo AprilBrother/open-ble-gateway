@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB Gateway</title>
+<link rel="icon" href="data:;base64,=">
+</head>
+
+<body>
+<div id="main">
+    <div class="header">
+        <h1>AB Gateway</h1>
+        <h2>Advanced</h2>
+    </div>
+
+    <div class="content">
+        <div class="pure-menu pure-menu-horizontal">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="index.htm" class="pure-menu-link">Dashboard</a></li>
+                <li class="pure-menu-item"><a href="wifi.htm" class="pure-menu-link">Wi-Fi</a></li>
+                <li class="pure-menu-item"><a href="app.htm" class="pure-menu-link">Application</a></li>
+                <li class="pure-menu-item pure-menu-selected"><a href="advanced.htm" class="pure-menu-link">Advanced</a></li>
+            </ul>
+        </div>
+        <div>&nbsp;</div>
+        <form class="pure-form pure-form-aligned" method="POST" action="/update" enctype="multipart/form-data">
+            <div class="pure-control-group">
+                <label for="update-file">OTA Firmware Update</label>
+                <input type="file" id="update-file" name="update">
+            </div>
+            <div class="pure-controls">
+                <input type="submit" class="pure-button pure-button-primary" value="Update">
+                <button class="pure-button" type="button" id="btn-restart">Restart</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script src="asset/jquery.js"></script>
+<script>
+function doneCallback() {
+    $('<link>')
+        .appendTo('head')
+        .attr({
+          type: 'text/css', 
+          rel: 'stylesheet',
+          href: 'asset/style.css'
+        });
+
+    $("#btn-restart").click(function() {
+        $.post("/restart");
+        alert("Restarted.");
+    });
+}
+
+if (window.jQuery) {
+    doneCallback();
+}
+</script>
+</body>
+</html>

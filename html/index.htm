@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB Gateway</title>
+<link rel="icon" href="data:;base64,=">
+<!-- ab.gateway -->
+</head>
+
+<body>
+<div id="main">
+    <div class="header">
+        <h1>AB Gateway</h1>
+        <h2>Dashboard</h2>
+    </div>
+
+    <div class="content">
+        <div class="pure-menu pure-menu-horizontal">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item pure-menu-selected"><a href="index.htm" class="pure-menu-link">Dashboard</a></li>
+                <li class="pure-menu-item"><a href="wifi.htm" class="pure-menu-link">Wi-Fi</a></li>
+                <li class="pure-menu-item"><a href="app.htm" class="pure-menu-link">Application</a></li>
+                <li class="pure-menu-item"><a href="advanced.htm" class="pure-menu-link">Advanced</a></li>
+            </ul>
+        </div>
+
+        <div>&nbsp;</div>
+        <div align="center">
+            <table class="pure-table" width="100%">
+				<tr class="pure-table-odd">
+					<td width="150">Firmware Version</td>
+					<td id="cont-ver"></td>
+				</tr>
+				<tr>
+					<td>MAC</td>
+					<td id="cont-mac"></td>
+				</tr>
+				<tr class="pure-table-odd">
+					<td>Serial Number</td>
+					<td id="cont-sn"></td>
+				</tr>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="asset/jquery.js"></script>
+<script>
+function doneCallback() {
+    $.getJSON("/info", function(data) {
+        $("#cont-ver").text(data.firmwareVer);
+        $("#cont-mac").text(data.mac);
+        $("#cont-sn").text(data.sn);
+    }).done(function() {
+        $('<link>')
+          .appendTo('head')
+          .attr({
+              type: 'text/css', 
+              rel: 'stylesheet',
+              href: 'asset/style.css'
+        });
+    });
+}
+
+if (window.jQuery) {
+    doneCallback();
+}
+</script>
+</body>
+</html>
