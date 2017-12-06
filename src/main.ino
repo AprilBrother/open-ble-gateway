@@ -37,8 +37,8 @@ enum DATA_STATE {
     DATA_STATE_END
 };
 
-const char *WIFI_SSID           = "siyue2L-east";
-const char *WIFI_PASS           = "siyuexiongdi";
+const char *WIFI_SSID           = "YOUR-SSID";
+const char *WIFI_PASS           = "YOUR-PASS";
 
 const char *DEFAULT_AP_NAME     = "ab.gateway";
 const char *DEFAULT_AP_PASS     = "12345678";
