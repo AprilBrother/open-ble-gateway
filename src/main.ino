@@ -9,7 +9,6 @@ extern "C" {
 #include <Arduino.h>
 
 #include <ESP8266WiFi.h>
-#include <WiFiMulti.h>
 #include <Hash.h>
 
 #include <DNSServer.h>
